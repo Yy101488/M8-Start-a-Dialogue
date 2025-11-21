@@ -15,42 +15,8 @@ var bodies := {
 ## - expression: a [code]Texture[/code] containing an expression
 ## - text: a [code]String[/code] containing the text the character says
 ## - character: a [code]Texture[/code] representing the character
-var dialogue_items: Array[Dictionary] = [
-	{
-		"expression": expressions["regular"],
-		"text": "[wave]Hey,Wake up![/wave]It 's time to make some video games!",
-		"character": bodies["sophia"],
-		"choices":{
-			"Let me sleep a little longer":2,
-			"Let's do it!":1,
-		},
-	},
-	{
-		"expression": expressions["regular"],
-		"text": "Great! Your first task will be to write a [b]dialogue tree[/b].",
-		"character": bodies["pink"],
-		"choices":{
-			"I will do my best":3,
-			"No,let me go back to sleep":2,
-		},
-	},
-	{
-		"expression": expressions["sad"],
-		"text": "Oh, come on! It'll be fun.",
-		"character": bodies["sophia"],
-		"choices":{
-			"No,really,Let me go back to sleep":0,
-			"Alright,I'll try":1
-		}
-	},
-	{
-		"expression": expressions["sad"],
-		"text": "That's the spirit! [wave]You can do it![/wave]",
-		"character": bodies["pink"],
-		"choices": {"Okay!(Quit)":-1}
-	},
+@export var dialogue_items: Array[DialogueItem] = []
 	
-]
 
 ## UI element that shows the texts
 @onready var rich_text_label: RichTextLabel = %RichTextLabel
@@ -68,27 +34,28 @@ var dialogue_items: Array[Dictionary] = [
 func _ready() -> void:
 	show_text(0)
 
-func create_buttons(choices_data:Dictionary)->void:
+func create_buttons(choices_data:Array[DialogueChoice])->void:
 	for button in action_buttons_v_box_container.get_children():
 		button.queue_free()
-	for choice_text in choices_data:
+	for choice in choices_data:
 		var button:=Button.new()
 		action_buttons_v_box_container.add_child(button)
-		button.text = choice_text
-		var target_line_idx:int=choices_data[choice_text]
-		if target_line_idx == -1:
+		button.text = choice.text
+		if choice.is_quit == true:
 			button.pressed.connect(get_tree().quit)
 		else:
+			var target_line_idx := choice.target_line_idx
 			button.pressed.connect(show_text.bind(target_line_idx))
+
 			
 ## Draws the current text to the rich text element
 func show_text(current_item_index:int) -> void:
 	# We retrieve the current item from the array
 	var current_item := dialogue_items[current_item_index]
-	rich_text_label.text = current_item["text"]
-	expression.texture = current_item["expression"]
-	body.texture = current_item["character"]
-	create_buttons(current_item["choices"])
+	rich_text_label.text = current_item.text
+	expression.texture = current_item.expression
+	body.texture = current_item.character
+	create_buttons(current_item.choices)
 
 	# We set the initial visible ratio to the text to 0, so we can change it in the tween
 	rich_text_label.visible_ratio = 0.0
