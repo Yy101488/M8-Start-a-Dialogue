@@ -81,7 +81,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_nggfo")
 script = ExtResource("2_n1q1t")
-dialogue_items = Array[Resource]([SubResource("Resource_1m3r0"), SubResource("Resource_1f3kq"), SubResource("Resource_m4u2h")])
+dialogue_items = Array[ExtResource("6_ujubm")]([SubResource("Resource_1m3r0"), SubResource("Resource_1f3kq"), SubResource("Resource_m4u2h")])
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_efgpg")

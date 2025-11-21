@@ -1,21 +1,10 @@
+@tool
+@icon("res://assets/dialogue_scene_icon.svg")
 extends Control
 
-var expressions := {
-	"happy": preload ("res://assets/emotion_happy.png"),
-	"regular": preload ("res://assets/emotion_regular.png"),
-	"sad": preload ("res://assets/emotion_sad.png"),
-}
 
-var bodies := {
-	"sophia": preload ("res://assets/sophia.png"),
-	"pink": preload ("res://assets/pink.png")
-}
-
-## An array of dictionaries. Each dictionary has three properties:
-## - expression: a [code]Texture[/code] containing an expression
-## - text: a [code]String[/code] containing the text the character says
-## - character: a [code]Texture[/code] representing the character
-@export var dialogue_items: Array[DialogueItem] = []
+@export var dialogue_items: Array[DialogueItem] = []:
+	set = set_dialogue_items
 	
 
 ## UI element that shows the texts
@@ -32,6 +21,8 @@ var bodies := {
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
 	show_text(0)
 
 func create_buttons(choices_data:Array[DialogueChoice])->void:
@@ -52,13 +43,11 @@ func create_buttons(choices_data:Array[DialogueChoice])->void:
 func show_text(current_item_index:int) -> void:
 	# We retrieve the current item from the array
 	var current_item := dialogue_items[current_item_index]
+	rich_text_label.visible_ratio=0.0
 	rich_text_label.text = current_item.text
 	expression.texture = current_item.expression
 	body.texture = current_item.character
 	create_buttons(current_item.choices)
-
-	# We set the initial visible ratio to the text to 0, so we can change it in the tween
-	rich_text_label.visible_ratio = 0.0
 	# We create a tween that will draw the text
 	var tween := create_tween()
 	# A variable that holds the amount of time for the text to show, in seconds
@@ -90,3 +79,10 @@ func slide_in() -> void:
 	slide_tween.tween_property(body, "position:x", 0, 0.3)
 	body.modulate.a = 0
 	slide_tween.parallel().tween_property(body, "modulate:a", 1, 0.2)
+
+func set_dialogue_items(new_dialog_items: Array[DialogueItem]) -> void:
+	for index in new_dialog_items.size():
+		if new_dialog_items[index] == null:
+			new_dialog_items[index] = DialogueItem.new()
+	dialogue_items = new_dialog_items
+	update_configuration_warnings()
